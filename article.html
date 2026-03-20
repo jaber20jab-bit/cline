@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المقال | مدونتي الشخصية</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+        </div>
+    </div>
+
+    <main class="container article-detail">
+        <a href="articles.html" class="back-link">&gt; رجوع</a>
+
+        <article id="article-content">
+            <div class="article-header">
+                <div class="article-header-left">
+                    <h1 id="article-title">جاري التحميل...</h1>
+                </div>
+                <div class="article-header-right">
+                    <div id="article-id" class="article-number">[00]</div>
+                    <div id="article-date" class="article-date">--.--.--</div>
+                </div>
+            </div>
+
+            <div class="reading-info">
+                <div id="reading-time">[0 دقائق قراءة]</div>
+                <div class="font-size-toggle">
+                    <span>حجم الخط:</span>
+                    <span id="font-small" class="active">صغير</span>
+                    <span id="font-large">كبير</span>
+                </div>
+            </div>
+
+            <div class="article-body" id="article-body">
+                <!-- Content loaded from HTML file -->
+            </div>
+
+            <div class="article-footer-nav">
+                <a href="#" id="prev-article" class="nav-next-prev">&gt; السابق</a>
+                <a href="#" id="next-article" class="nav-next-prev">التالي &lt;</a>
+            </div>
+        </article>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="#" class="footer-link-item">الشروط والأحكام</a>
+            <a href="#" class="footer-link-item">سياسة الخصوصية</a>
+            <p>© 2026 جميع الحقوق محفوظة.</p>
+        </div>
+        <div>
+            <a href="https://github.com" target="_blank">GITHUB PAGES [↗]</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        async function loadArticleDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            
+            if (!articleId) {
+                window.location.href = 'articles.html';
+                return;
+            }
+
+            try {
+                // Load metadata from JSON
+                const response = await fetch('articles/articles.json');
+                const articles = await response.json();
+                const articleMeta = articles.find(a => a.id === articleId);
+                
+                if (!articleMeta) {
+                    throw new Error('Article not found');
+                }
+
+                // Update UI with metadata
+                document.getElementById('article-title').textContent = articleMeta.title;
+                document.getElementById('article-id').textContent = `[${articleMeta.id}]`;
+                document.getElementById('article-date').textContent = articleMeta.date;
+                document.getElementById('reading-time').textContent = `[${articleMeta.readingTime}]`;
+                document.title = `${articleMeta.title} | مدونتي الشخصية`;
+
+                // Load content from HTML
+                const contentResponse = await fetch(`articles/${articleMeta.file}`);
+                const contentHtml = await contentResponse.text();
+                document.getElementById('article-body').innerHTML = contentHtml;
+
+                // Handle Navigation
+                const currentIndex = articles.findIndex(a => a.id === articleId);
+                const prevArticle = articles[currentIndex + 1];
+                const nextArticle = articles[currentIndex - 1];
+
+                const prevBtn = document.getElementById('prev-article');
+                const nextBtn = document.getElementById('next-article');
+
+                if (prevArticle) {
+                    prevBtn.href = `article.html?id=${prevArticle.id}`;
+                    prevBtn.style.visibility = 'visible';
+                } else {
+                    prevBtn.style.visibility = 'hidden';
+                }
+
+                if (nextArticle) {
+                    nextBtn.href = `article.html?id=${nextArticle.id}`;
+                    nextBtn.style.visibility = 'visible';
+                } else {
+                    nextBtn.style.visibility = 'hidden';
+                }
+
+            } catch (error) {
+                console.error('Error loading article detail:', error);
+                document.getElementById('article-body').innerHTML = '<div class="error">عذراً، لم يتم العثور على المقال أو حدث خطأ أثناء التحميل.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArticleDetail);
+    </script>
+</body>
+</html>

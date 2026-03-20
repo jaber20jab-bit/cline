@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المقالات | مذكراتي الشخصية</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+            <span class="ticker-item"><span class="ticker-item-content">تحميل...</span></span>
+        </div>
+    </div>
+
+    <header class="container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="index.html">مدونتي الشخصية</a>
+                <span>المكان الذي تنطق فيه الحقيقة ببساطة.</span>
+            </div>
+            <div class="nav-links">
+                <a href="about.html">عني</a>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">☀️</span>
+                    <span id="theme-text">الوضع</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="articles-list" id="articles-container">
+            <!-- Articles will be loaded here via JavaScript -->
+            <div class="loading">جاري تحميل المقالات...</div>
+        </section>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="#" class="footer-link-item">الشروط والأحكام</a>
+            <a href="#" class="footer-link-item">سياسة الخصوصية</a>
+            <p>© 2026 جميع الحقوق محفوظة.</p>
+        </div>
+        <div>
+            <a href="https://github.com" target="_blank">GITHUB PAGES [↗]</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Load articles listing
+        async function loadArticles() {
+            const container = document.getElementById('articles-container');
+            try {
+                const response = await fetch('articles/articles.json');
+                const articles = await response.json();
+                
+                container.innerHTML = '';
+                
+                articles.forEach(article => {
+                    const articleEl = document.createElement('div');
+                    articleEl.className = 'article-item';
+                    articleEl.innerHTML = `
+                        <div class="article-meta">
+                            <span class="article-number">[${article.id}]</span>
+                            <span class="article-date">${article.date}</span>
+                        </div>
+                        <div class="article-content">
+                            <a href="article.html?id=${article.id}">
+                                <h2 class="article-title">${article.title}</h2>
+                            </a>
+                        </div>
+                    `;
+                    container.appendChild(articleEl);
+                });
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                container.innerHTML = '<div class="error">فشل في تحميل المقالات. يرجى المحاولة لاحقاً.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html>

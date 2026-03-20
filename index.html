@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابتي الشخصية | مذكرات ومقالات</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="landing-page">
+    <div class="container">
+        <h1 class="landing-title">الحقيقة يجب أن تكون بسيطة.</h1>
+        <div class="typewriter-container">
+            <span id="typewriter"></span>
+        </div>
+        <a href="articles.html" class="enter-btn">ادخل &gt;</a>
+    </div>
+
+    <script>
+        const text = "في عالم مليء بالضجيج، نبحث عن الكلمة الصادقة والمذكرات التي تحكي القصة كما هي..";
+        const typewriterElement = document.getElementById('typewriter');
+        let index = 0;
+
+        function type() {
+            if (index < text.length) {
+                typewriterElement.textContent += text.charAt(index);
+                index++;
+                setTimeout(type, 50);
+            }
+        }
+
+        window.onload = type;
+
+        // Apply theme from localstorage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>
