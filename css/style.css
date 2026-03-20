@@ -414,3 +414,37 @@ footer {
         max-width: 100%;
     }
 }
+
+/* Reading Progress Bar */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    right: 0;        /* RTL: starts from right */
+    height: 3px;
+    width: 0%;
+    background-color: var(--text-color);
+    z-index: 1000;
+    transition: width 0.1s linear;
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;      /* RTL: place on left side */
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--text-color) !important;
+    font-size: 1.2rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.back-to-top.visible {
+    display: flex;
+}

@@ -82,6 +82,8 @@
         </div>
     </footer>
 
+    <div class="progress-bar" id="reading-progress"></div>
+
     <script src="js/main.js"></script>
     <script>
         // Theme persistence
@@ -102,6 +104,22 @@
             }
         }
 
+        // Safe content injection using DOMParser
+        async function safeInjectContent(html, targetElement) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                targetElement.innerHTML = '';
+                Array.from(doc.body.childNodes).forEach(node => {
+                    targetElement.appendChild(document.importNode(node, true));
+                });
+            } catch (error) {
+                console.error('Error injecting content with DOMParser:', error);
+                // Fallback to innerHTML if DOMParser fails
+                targetElement.innerHTML = html;
+            }
+        }
+
         async function loadArticleDetail() {
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
@@ -114,6 +132,9 @@
             try {
                 // Load metadata from JSON
                 const response = await fetch('articles/articles.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to load articles metadata`);
+                }
                 const articles = await response.json();
                 const articleMeta = articles.find(a => a.id === articleId);
                 
@@ -128,10 +149,18 @@
                 document.getElementById('reading-time').textContent = `[${articleMeta.readingTime}]`;
                 document.title = `${articleMeta.title} | مدونتي الشخصية`;
                 
-                // Load content from HTML
+                // Load content from HTML with validation
                 const contentResponse = await fetch(`articles/${articleMeta.file}`);
+                if (!contentResponse.ok) {
+                    throw new Error(`Failed to load article file: ${articleMeta.file}`);
+                }
                 const contentHtml = await contentResponse.text();
-                document.getElementById('article-body').innerHTML = contentHtml;
+                if (!contentHtml || contentHtml.trim().length === 0) {
+                    throw new Error(`Article file is empty: ${articleMeta.file}`);
+                }
+                
+                const articleBody = document.getElementById('article-body');
+                await safeInjectContent(contentHtml, articleBody);
                 
                 // Handle Navigation
                 const currentIndex = articles.findIndex(a => a.id === articleId);
@@ -156,9 +185,35 @@
                 }
                 
             } catch (error) {
-                console.error('Error loading article detail:', error);
+                console.error('Error loading article detail:', error, { articleId });
                 document.getElementById('article-body').innerHTML = '<div class="error">عذراً، لم يتم العثور على المقال أو حدث خطأ أثناء التحميل.</div>';
             }
+        }
+        
+        // Initialize reading progress bar
+        function initReadingProgress() {
+            const bar = document.getElementById('reading-progress');
+            if (!bar) return;
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight 
+                              - window.innerHeight;
+                const progress = docHeight > 0 
+                                  ? (scrollTop / docHeight) * 100 : 0;
+                bar.style.width = `${Math.min(progress, 100)}%`;
+            });
+        }
+        
+        // Initialize back to top button
+        function initBackToTop() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', () => {
+                btn.classList.toggle('visible', window.scrollY > 300);
+            });
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         }
         
         // Initialize theme and load article on DOM load
@@ -182,6 +237,10 @@
                 themeIcon.textContent = '🌙';
                 themeText.textContent = 'الوضع الليلي';
             }
+            
+            // Initialize new features
+            initReadingProgress();
+            initBackToTop();
             
             loadArticleDetail();
         });

@@ -24,7 +24,7 @@ function updateTicker() {
     const dateStr = now.toLocaleDateString('ar-EG', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '.');
     
     tickerItems.forEach(item => {
-        item.textContent = `${dateStr} في الساعة ${timeStr} بتوقيتك المحلي [09 مقالات متاحة]`;
+        item.textContent = `${dateStr} في الساعة ${timeStr} بتوقيتك المحلي [10 مقالات متاحة]`;
     });
 }
 
@@ -78,3 +78,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// New functions for article detail page
+function safeInjectContent(html, targetElement) {
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        targetElement.innerHTML = '';
+        Array.from(doc.body.childNodes).forEach(node => {
+            targetElement.appendChild(document.importNode(node, true));
+        });
+    } catch (error) {
+        console.error('Error injecting content with DOMParser:', error);
+        // Fallback to innerHTML if DOMParser fails
+        targetElement.innerHTML = html;
+    }
+}
+
+function initReadingProgress() {
+    const bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight 
+                          - window.innerHeight;
+        const progress = docHeight > 0 
+                          ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = `${Math.min(progress, 100)}%`;
+    });
+}
+
+function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 300);
+    });
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
