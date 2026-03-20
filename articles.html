@@ -7,8 +7,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="مذكرات شخصية - مقالات متنوعة">
 </head>
 <body>
     <div class="ticker-wrap">
@@ -28,7 +29,7 @@
             </div>
             <div class="nav-links">
                 <a href="about.html">عني</a>
-                <button class="theme-toggle" onclick="toggleTheme()">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل السمة">
                     <span id="theme-icon">☀️</span>
                     <span id="theme-text">الوضع</span>
                 </button>
@@ -44,23 +45,44 @@
     </main>
 
     <footer class="container">
-        <div class="footer-links">
-            <a href="#" class="footer-link-item">الشروط والأحكام</a>
-            <a href="#" class="footer-link-item">سياسة الخصوصية</a>
-            <p>© 2026 جميع الحقوق محفوظة.</p>
+        <div class="footer-right">
+            <span>© 2026 جميع الحقوق محفوظة.</span>
+            <a href="#" aria-disabled="true" tabindex="-1">الشروط والأحكام</a>
+            <a href="#" aria-disabled="true" tabindex="-1">سياسة الخصوصية</a>
         </div>
-        <div>
+        <div class="footer-left">
             <a href="https://github.com" target="_blank">GITHUB PAGES [↗]</a>
         </div>
     </footer>
 
     <script src="js/main.js"></script>
     <script>
+        // Theme persistence
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            // Update icon and text based on theme
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'الوضع';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'الوضع الليلي';
+            }
+        }
+
         // Load articles listing
         async function loadArticles() {
             const container = document.getElementById('articles-container');
             try {
                 const response = await fetch('articles/articles.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const articles = await response.json();
                 
                 container.innerHTML = '';
@@ -87,7 +109,30 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadArticles);
+        // Initialize theme and load articles on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set theme from localStorage or default to dark
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            
+            // Initialize theme button icon/text
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'الوضع';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'الوضع الليلي';
+            }
+            
+            loadArticles();
+        });
     </script>
 </body>
 </html>
