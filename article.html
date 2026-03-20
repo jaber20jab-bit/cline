@@ -7,8 +7,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="مذكرات شخصية - مقال">
 </head>
 <body>
     <div class="ticker-wrap">
@@ -20,8 +21,24 @@
         </div>
     </div>
 
+    <header class="container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="index.html">مدونتي الشخصية</a>
+                <span>المكان الذي تنطق فيه الحقيقة ببساطة.</span>
+            </div>
+            <div class="nav-links">
+                <a href="about.html">عني</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل السمة">
+                    <span id="theme-icon">☀️</span>
+                    <span id="theme-text">الوضع</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
     <main class="container article-detail">
-        <a href="articles.html" class="back-link">&gt; رجوع</a>
+        <a href="articles.html" class="back-link">> رجوع</a>
 
         <article id="article-content">
             <div class="article-header">
@@ -48,25 +65,43 @@
             </div>
 
             <div class="article-footer-nav">
-                <a href="#" id="prev-article" class="nav-next-prev">&gt; السابق</a>
-                <a href="#" id="next-article" class="nav-next-prev">التالي &lt;</a>
+                <a href="#" id="prev-article" class="nav-next-prev">> السابق</a>
+                <a href="#" id="next-article" class="nav-next-prev">التالي <</a>
             </div>
         </article>
     </main>
 
     <footer class="container">
-        <div class="footer-links">
-            <a href="#" class="footer-link-item">الشروط والأحكام</a>
-            <a href="#" class="footer-link-item">سياسة الخصوصية</a>
-            <p>© 2026 جميع الحقوق محفوظة.</p>
+        <div class="footer-right">
+            <span>© 2026 جميع الحقوق محفوظة.</span>
+            <a href="#" aria-disabled="true" tabindex="-1">الشروط والأحكام</a>
+            <a href="#" aria-disabled="true" tabindex="-1">سياسة الخصوصية</a>
         </div>
-        <div>
+        <div class="footer-left">
             <a href="https://github.com" target="_blank">GITHUB PAGES [↗]</a>
         </div>
     </footer>
 
     <script src="js/main.js"></script>
     <script>
+        // Theme persistence
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            // Update icon and text based on theme
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'الوضع';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'الوضع الليلي';
+            }
+        }
+
         async function loadArticleDetail() {
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
@@ -75,7 +110,7 @@
                 window.location.href = 'articles.html';
                 return;
             }
-
+            
             try {
                 // Load metadata from JSON
                 const response = await fetch('articles/articles.json');
@@ -85,48 +120,71 @@
                 if (!articleMeta) {
                     throw new Error('Article not found');
                 }
-
+                
                 // Update UI with metadata
                 document.getElementById('article-title').textContent = articleMeta.title;
                 document.getElementById('article-id').textContent = `[${articleMeta.id}]`;
                 document.getElementById('article-date').textContent = articleMeta.date;
                 document.getElementById('reading-time').textContent = `[${articleMeta.readingTime}]`;
                 document.title = `${articleMeta.title} | مدونتي الشخصية`;
-
+                
                 // Load content from HTML
                 const contentResponse = await fetch(`articles/${articleMeta.file}`);
                 const contentHtml = await contentResponse.text();
                 document.getElementById('article-body').innerHTML = contentHtml;
-
+                
                 // Handle Navigation
                 const currentIndex = articles.findIndex(a => a.id === articleId);
                 const prevArticle = articles[currentIndex + 1];
                 const nextArticle = articles[currentIndex - 1];
-
+                
                 const prevBtn = document.getElementById('prev-article');
                 const nextBtn = document.getElementById('next-article');
-
+                
                 if (prevArticle) {
                     prevBtn.href = `article.html?id=${prevArticle.id}`;
                     prevBtn.style.visibility = 'visible';
                 } else {
                     prevBtn.style.visibility = 'hidden';
                 }
-
+                
                 if (nextArticle) {
                     nextBtn.href = `article.html?id=${nextArticle.id}`;
                     nextBtn.style.visibility = 'visible';
                 } else {
                     nextBtn.style.visibility = 'hidden';
                 }
-
+                
             } catch (error) {
                 console.error('Error loading article detail:', error);
                 document.getElementById('article-body').innerHTML = '<div class="error">عذراً، لم يتم العثور على المقال أو حدث خطأ أثناء التحميل.</div>';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', loadArticleDetail);
+        
+        // Initialize theme and load article on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set theme from localStorage or default to dark
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            
+            // Initialize theme button icon/text
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'الوضع';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'الوضع الليلي';
+            }
+            
+            loadArticleDetail();
+        });
     </script>
 </body>
 </html>

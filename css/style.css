@@ -255,6 +255,9 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    max-width: 85ch;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .article-header-left h1 {
@@ -298,8 +301,10 @@ button {
 .article-body {
     font-size: 1.2rem;
     color: var(--secondary-text);
-    max-width: 65ch;
+    max-width: 85ch;
     overflow-wrap: break-word;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .article-body p {
@@ -394,5 +399,18 @@ footer {
     
     .back-link {
         padding: 0.75rem 1.25rem; /* Larger padding for mobile */
+    }
+    
+    /* Fix for reading-info bar layout on mobile */
+    .reading-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    /* Ensure article header and body are full width on mobile */
+    .article-header,
+    .article-body {
+        max-width: 100%;
     }
 }
